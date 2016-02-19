@@ -1,0 +1,225 @@
+package NetTankWar;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.util.List;
+
+
+
+/**
+ * 代表子弹的类
+ * @author wangshiiqihaha
+ *
+ */
+public class SuperMissile extends Missile{
+	/**
+	 * 子弹x方向的速度
+	 */
+	public static final int XSPEED = 40;
+	/**
+	 * 子弹y方向的速度
+	 */
+	public static final int YSPEED = 40;
+	/**
+	 * 子弹的宽度
+	 */
+	public static final int WIDTH = 40;
+	/**
+	 * 子弹的高度
+	 */
+	public static final int HEIGHT = 40;
+
+	private static int ID = 1;
+
+	TankClient tc;
+
+	int tankId;
+
+	int id;
+
+	int x, y;
+
+	Dir dir = Dir.R;
+
+	boolean live = true;
+
+	boolean good;
+	
+	/**
+	 * 根据位置等属性构造子弹
+	 * @param tankId 所属坦克的id号(用于网络版)
+	 * @param x 子弹产生的x坐标
+	 * @param y 子弹产生的y坐标
+	 * @param good 子弹的立场是好还是坏
+	 * @param dir 子弹的方向
+	 * @see Dir
+	 */
+	
+	public SuperMissile(int tankId, int x, int y, boolean good, Dir dir) {
+		super(tankId, x, y, good, dir);
+		this.tankId = tankId;
+		this.x = x;
+		this.y = y;
+		this.good = good;
+		this.dir = dir;
+		this.id = ID++;
+	}
+	
+	/**
+	 * 根据位置和TankClient构建子弹
+	 * @param tankId
+	 * @param x
+	 * @param y
+	 * @param good
+	 * @param dir
+	 * @param tc 子弹构建的场所
+	 * @see TankClient
+	 */
+	public SuperMissile(int tankId, int x, int y, boolean good, Dir dir,
+			TankClient tc) {
+		this(tankId, x, y, good, dir);
+		this.tc = tc;
+	}
+	
+	/**
+	 * 画出子弹
+	 * @param g 画笔
+	 */
+	public void draw(Graphics g) {
+		if (!live) {
+			tc.missiles.remove(this);
+			return;
+		}
+
+		Color c = g.getColor();
+		if(good) {
+			g.setColor(Color.GRAY);
+		}
+		else g.setColor(Color.black);
+		
+		g.fillOval(x, y, WIDTH, HEIGHT);
+		g.setColor(c);
+
+		move();
+	}
+
+	private void move() {
+		double XSpeed=XSPEED+0.3*tc.myTank.level;
+		double YSpeed=YSPEED+0.3*tc.myTank.level;
+		
+		switch(dir) {
+		case L:
+			x-=XSpeed;
+			break;
+		case LU:
+			x-=XSpeed;
+			y-=YSpeed;
+			break;
+		case U:
+			y-=YSpeed;
+			break;
+		case RU:
+			x+=XSpeed;
+			y-=YSpeed;
+			break;
+		case R:
+			x+=XSpeed;
+			break;
+		case RD:
+			x+=XSpeed;
+			y+=YSpeed;
+			break;
+		case D:
+			y+=YSpeed;
+			break;
+		case LD:
+			x-=XSpeed;
+			y+=YSpeed;
+			break;	
+		}
+
+		if (x < 0 || y < 0 || x > TankClient.GAME_WIDTH
+				|| y > TankClient.GAME_HEIGHT) {
+			live = false;
+		}
+	}
+	
+	/**
+	 * 取得子弹的外切方形
+	 * @return 子弹的外切Rectangle
+	 */
+	public Rectangle getRech() {
+		return new Rectangle(x, y, WIDTH, HEIGHT);
+	}
+	
+	/**
+	 * 检测子弹是否撞到坦克
+	 * @param t 被检测的坦克
+	 * @return 如果撞到返回true,否则返回false
+	 */
+	public boolean hitTank(Tank t) {
+		if(this.live&&this.getRech().intersects(t.getRech())&&t.isLive()&&this.good!=t.isGood()) {
+			/*if(t.isGood()) {
+				t.setLife(t.getLife()-20);
+				if(t.getLife()<=0) {
+					t.setLive(false);
+				}
+			}
+			else {
+				t.setLive(false);
+			}*/
+			t.setLife(t.getLife()-100);
+			if(t.getLife()<=0) {
+				t.setLive(false);
+			}
+			this.live=false;
+			tc.explodes.add(new Explode(x, y, tc));
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 检测是否撞到一系列坦克中的一个
+	 * @param tanks 被检测的坦克序列
+	 * @return 如果撞到其中一个,返回true,否则返回false
+	 */
+	public boolean hitTanks(List<Tank> tanks) {
+		for (int i = 0; i < tanks.size(); i++) {
+			if (this.hitTank(tanks.get(i))) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean hitWall(Wall w) {
+		if(live&&this.getRech().intersects(w.getRech())) {
+			live=false;
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean hitMissile(Missile m) {
+		if(m.good!=this.good&&m.live&&this.live&&this.getRech().intersects(m.getRech())) {
+			live=false;
+			m.live=false;
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean hitMissiles(List<Missile> missiles) {
+		if(good) {
+			for(int j=0;j<missiles.size();j++) {
+				if(this.hitMissile(missiles.get(j))) {
+					return true;
+				}
+			}
+		}
+			
+		return false;
+		
+	}
+}
