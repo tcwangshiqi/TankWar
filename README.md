@@ -21,4 +21,4 @@ There are three different modes.
 (2)You could challenge the boss directly.
 
 (3)You could click to play online!!!!! Just enter your ip address, then you could play it with your friends.
-The num of your friends is not limited!!!! 
+The num of your friends is not limited!!!!
