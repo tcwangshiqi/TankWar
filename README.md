@@ -7,14 +7,16 @@ If you want to prove whether you are a master of TankWar,
 
 ## **And you would love it!!!**
 
-If you want to know how to play the game, just open the tankwar game and click instructions.
+If you want to know how to play the game, just open the tankwar game and **click instructions**.
 
 You would learn how to play it in 1 minutes.
 
 
 The basic Chinese instruction.pdf is uploaded. I would edited in English soon~
 
-There are three different modes.
+
+
+**There are three different modes.**
 
 (1)You could play it onlone. You have to try really really hard to pass through the whole game.
 
