@@ -3,9 +3,9 @@
 If you want to experience a totally different TankWar game,
 If you want to prove whether you are a master of TankWar,
 
-**Just try it.**
+## **Just try it.**
 
-**And you would love it!!!**
+## **And you would love it!!!**
 
 If you want to know how to play the game, just open the tankwar game and click instructions.
 
